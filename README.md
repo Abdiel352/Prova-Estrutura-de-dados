@@ -3,39 +3,49 @@
 **Aluno:** Abdiel Abadio Gouveia Silva  
 **Disciplina:** Estrutura de Dados  
 **Instituição:** IFMT  
-**Data de entrega:** 05/04/2026
+**Data de entrega:** 05/04/2026  
 
 ---
 
-## Descrição do Projeto
+# Descrição do Projeto
 
-Sistema de cadastro e gerenciamento de produtos de comércio desenvolvido em linguagem C. O programa permite cadastrar até 200 produtos com informações como nome, categoria, preço base, percentual de lucro, preço ao consumidor e fabricante. Além do cadastro, oferece funcionalidades de listagem ordenada, busca por diferentes critérios, relatórios estatísticos e análise de margens de lucro.
+Este projeto consiste em um **sistema de cadastro e gerenciamento de produtos de comércio**, desenvolvido na linguagem C. O programa permite cadastrar até **200 produtos**, contendo informações como nome, categoria, preço base, percentual de lucro, preço ao consumidor e fabricante.
+
+Além do cadastro, o sistema oferece funcionalidades de **listagem ordenada, busca por diferentes critérios, geração de relatórios estatísticos e análise de margens de lucro**.
 
 ---
 
-## Estrutura de Arquivos
+# Estrutura de Arquivos
 
-O projeto foi organizado de forma modular, separando responsabilidades em pares de arquivos `.h` (cabeçalho) e `.c` (implementação):
+O projeto foi organizado de forma **modular**, separando responsabilidades em pares de arquivos `.h` (cabeçalhos) e `.c` (implementações).
 
 | Arquivo | Descrição |
 |---|---|
-| `main.c` | Ponto de entrada do programa. Apenas chama a função `menu()`. |
-| `funcao.h` | Define a struct `Produto`, constantes (`MAX_PRODUTOS`, `TAM_TEXTO`) e o protótipo do menu. |
-| `funcao.c` | Implementa toda a lógica do menu, cadastro, listagem, busca, relatórios, ranking e validações de entrada. |
-| `ordenar.h` | Declara o tipo `ComparadorProduto` (ponteiro de função) e os algoritmos básicos de ordenação. |
-| `ordenar.c` | Implementa Insertion Sort, Selection Sort e Bubble Sort. |
+| `main.c` | Ponto de entrada do programa. Responsável apenas por chamar a função `menu()`. |
+| `funcao.h` | Define a estrutura `Produto`, constantes (`MAX_PRODUTOS`, `TAM_TEXTO`) e o protótipo da função `menu`. |
+| `funcao.c` | Implementa a lógica principal do sistema, incluindo menu, cadastro, listagem, buscas, relatórios, ranking e validações de entrada. |
+| `ordenar.h` | Declara o tipo `ComparadorProduto` (ponteiro de função) e os protótipos dos algoritmos básicos de ordenação. |
+| `ordenar.c` | Implementa os algoritmos Insertion Sort, Selection Sort e Bubble Sort. |
 | `ordenacaoComplexa.h` | Declara os algoritmos avançados de ordenação. |
 | `ordenacaoComplexa.c` | Implementa Merge Sort e Quick Sort. |
-| `busca.h` | Declara as funções de comparação textual e busca binária. |
-| `busca.c` | Implementa comparação case-insensitive e buscas binárias por nome, fabricante e faixa de preço. |
+| `busca.h` | Declara funções de comparação textual e busca binária. |
+| `busca.c` | Implementa comparação textual case-insensitive e buscas binárias por nome, fabricante e faixa de preço. |
 
-### Por que essa organização?
+## Justificativa da Organização
 
-A separação em módulos foi feita para manter o **princípio da responsabilidade única**: cada par de arquivos cuida de um aspecto do sistema (ordenação, busca, lógica principal). Isso facilita a leitura, manutenção e reutilização do código. Os cabeçalhos (`.h`) expõem apenas o necessário, enquanto funções auxiliares são declaradas como `static` dentro dos `.c`, ficando invisíveis para o restante do programa.
+A separação em módulos foi adotada para seguir o **princípio da responsabilidade única**, em que cada módulo é responsável por uma parte específica do sistema (ordenação, busca ou lógica principal).
+
+Essa abordagem facilita:
+
+- a **manutenção do código**
+- a **leitura e organização**
+- a **reutilização de componentes**
+
+Os arquivos de cabeçalho (`.h`) expõem apenas as interfaces necessárias, enquanto funções auxiliares são declaradas como `static` dentro dos arquivos `.c`, tornando-as invisíveis para outros módulos.
 
 ---
 
-## Estrutura de Dados Principal
+# Estrutura de Dados Principal
 
 ```c
 typedef struct {
@@ -49,122 +59,154 @@ typedef struct {
 } Produto;
 ```
 
-O `preco_cons` é calculado automaticamente no cadastro pela fórmula:
+O campo `preco_cons` é calculado automaticamente no momento do cadastro por meio da fórmula:
 
-$$\text{preco\_cons} = \text{preco\_base} + \left(\text{preco\_base} \times \frac{\text{percen\_lucro}}{100}\right)$$
+```
+preco_cons = preco_base + (preco_base * (percen_lucro / 100))
+```
 
 ---
 
-## Funcionalidades do Menu
+# Funcionalidades do Menu
 
-### 1. Cadastro de Produto
+## 1. Cadastro de Produto
 
-Permite cadastrar um novo produto com todos os campos. Validações implementadas:
+Permite cadastrar um novo produto com todos os campos necessários.
 
-- **Identificação:** deve ser um número inteiro válido e único (não pode repetir).
-- **Nome e Fabricante:** não podem ser vazios, conter apenas espaços, nem conter apenas números/símbolos — é exigida pelo menos uma letra (validação feita por verificação explícita de caracteres ASCII A–Z/a–z, sem depender de `isalpha()` que varia conforme locale).
-- **Categoria:** número inteiro entre 1 e 7.
-- **Preço base e Percentual de lucro:** números decimais válidos, maiores ou iguais a zero.
+### Validações implementadas
 
-Todas as entradas numéricas usam `strtol`/`strtof` com verificação de erro completa (rejeita texto misturado, overflow, entrada vazia), em vez de `scanf` que aceita entrada parcial silenciosamente.
+**Identificação**
 
-### 2. Listagem de Produtos
+- Deve ser um número inteiro válido.
+- Não pode ser repetido.
 
-Exibe todos os produtos cadastrados, ordenados conforme a escolha do usuário:
+**Nome e Fabricante**
 
-| Opção | Critério | Algoritmo Utilizado | Por quê? |
+- Não podem ser vazios.
+- Não podem conter apenas espaços.
+- Não podem conter apenas números ou símbolos.
+- Devem conter **pelo menos uma letra**.
+
+A verificação de letras é feita por meio da verificação explícita de caracteres ASCII (`A–Z` e `a–z`), evitando o uso de `isalpha()`, cujo comportamento pode variar dependendo do locale do sistema.
+
+**Categoria**
+
+- Deve ser um número inteiro entre **1 e 7**.
+
+**Preço base e percentual de lucro**
+
+- Devem ser números decimais válidos.
+- Devem ser maiores ou iguais a zero.
+
+Todas as entradas numéricas são lidas como **strings** e convertidas utilizando `strtol` e `strtof`, com verificação completa de erros. Essa abordagem evita problemas comuns do `scanf`, como leitura parcial ou aceitação silenciosa de entradas inválidas.
+
+---
+
+# 2. Listagem de Produtos
+
+Exibe todos os produtos cadastrados, ordenados de acordo com o critério escolhido pelo usuário.
+
+| Opção | Critério | Algoritmo Utilizado | Justificativa |
 |---|---|---|---|
-| 1 | Nome (A→Z) | Insertion Sort | Eficiente para dados quase ordenados, estável |
-| 2 | Nome (Z→A) | Quick Sort | Rápido em caso geral, demonstra particionamento |
-| 3 | Categoria (A→Z) | Selection Sort | Simples, número limitado de categorias |
-| 4 | Preço base (crescente) | Merge Sort | Estável e O(n log n) garantido |
-| 5 | % de lucro (decrescente) | Bubble Sort | Didático, demonstra trocas adjacentes |
+| 1 | Nome (A → Z) | Insertion Sort | Eficiente para conjuntos pequenos ou quase ordenados |
+| 2 | Nome (Z → A) | Quick Sort | Alta eficiência em casos gerais |
+| 3 | Categoria | Selection Sort | Implementação simples e adequada para poucas categorias |
+| 4 | Preço base (crescente) | Merge Sort | Complexidade garantida O(n log n) e algoritmo estável |
+| 5 | Percentual de lucro (decrescente) | Bubble Sort | Uso didático para demonstrar trocas adjacentes |
 
-A escolha de algoritmos diferentes para cada critério foi intencional, para demonstrar domínio de múltiplos algoritmos de ordenação conforme exigido pela disciplina.
+A utilização de diferentes algoritmos foi intencional, com o objetivo de **demonstrar domínio de múltiplas técnicas de ordenação**, conforme exigido pela disciplina.
 
-Todos os algoritmos utilizam um **comparador genérico** (`ComparadorProduto`), que é um ponteiro de função. Isso permite reutilizar o mesmo algoritmo com critérios diferentes sem duplicar código.
-
-### 3. Busca de Dados do Produto
-
-Três tipos de busca, todas utilizando **busca binária** sobre cópias ordenadas do vetor:
-
-- **Por nome:** ordena por nome (Merge Sort) e faz busca binária exata (case-insensitive).
-- **Por fabricante:** ordena por fabricante (Quick Sort), encontra o primeiro via busca binária e percorre sequencialmente para listar todos do mesmo fabricante.
-- **Por faixa de preço:** ordena por preço ao consumidor (Insertion Sort), encontra o início da faixa via busca binária e percorre até o fim da faixa.
-
-A busca binária foi escolhida por ter complexidade O(log n), muito mais eficiente que busca linear O(n) para grandes volumes de dados.
-
-### 4. Relatórios Estatísticos
-
-Gera um relatório completo com:
-
-- **Preço médio ao consumidor por categoria:** calcula a média aritmética dos preços agrupados por cada uma das 7 categorias.
-- **Produto mais caro e mais barato:** percorre o vetor uma única vez para identificar os extremos.
-- **Categoria(s) com mais produtos:** identifica qual categoria tem maior quantidade cadastrada, tratando empates (exibe todas as empatadas).
-
-### 5. Ranking de Margens e Alertas
-
-Funcionalidade de análise de negócio com três sub-opções:
-
-- **Top 5 maiores margens:** ordena por percentual de lucro decrescente (Bubble Sort) e exibe os 5 primeiros, com margem, preço base e preço ao consumidor.
-- **Alerta de margem baixa:** o usuário informa um limite percentual e o sistema lista todos os produtos com margem abaixo desse valor, marcados com `[ALERTA]`.
-- **Alerta de margem acima do teto:** o usuário informa um teto de margem e o sistema lista todos os produtos que ultrapassam esse valor, mostrando quantos pontos percentuais acima do teto estão, com `[ALERTA]`.
-
-Essa funcionalidade simula uma ferramenta de apoio à decisão comercial, permitindo identificar rapidamente produtos com margem insuficiente ou excessiva.
-
-### 6. Sair
-
-Encerra o programa.
+Todos os algoritmos utilizam um **comparador genérico** (`ComparadorProduto`), implementado como **ponteiro de função**, permitindo reutilizar os mesmos algoritmos com diferentes critérios de ordenação sem duplicação de código.
 
 ---
 
-## Algoritmos de Ordenação
+# 3. Busca de Dados do Produto
 
-| Algoritmo | Complexidade Média | Complexidade Pior Caso | Estável? | Arquivo | Onde é usado |
-|---|---|---|---|---|---|
-| Insertion Sort | O(n²) | O(n²) | Sim | `ordenar.c` | Listagem por nome (A→Z) e busca por faixa de preço |
-| Selection Sort | O(n²) | O(n²) | Não | `ordenar.c` | Listagem por categoria |
-| Bubble Sort | O(n²) | O(n²) | Sim | `ordenar.c` | Listagem por % de lucro (decrescente) e ranking top 5 margens |
-| Quick Sort | O(n log n) | O(n²) | Não | `ordenacaoComplexa.c` | Listagem por nome (Z→A) e busca por fabricante |
-| Merge Sort | O(n log n) | O(n log n) | Sim | `ordenacaoComplexa.c` | Listagem por preço base e busca por nome |
+O sistema oferece três tipos de busca, todas utilizando **busca binária**, que possui complexidade **O(log n)**.
 
-O Quick Sort usa pivô mediano para reduzir a chance do pior caso. O Merge Sort usa alocação dinâmica (`malloc`) para o array temporário durante a intercalação.
+### Busca por nome
 
-Todos os algoritmos utilizam um **comparador genérico** via ponteiro de função (`ComparadorProduto`), o que permite reutilizar o mesmo algoritmo com critérios de ordenação diferentes sem duplicar código.
+1. O vetor é ordenado por nome usando **Merge Sort**.
+2. É realizada uma **busca binária case-insensitive**.
+3. O produto encontrado é exibido.
 
-## Algoritmos de Busca
+### Busca por fabricante
 
-| Algoritmo | Complexidade | Arquivo | Onde é usado |
-|---|---|---|---|
-| Busca Binária (nome) | O(log n) | `busca.c` | Buscar produto exato por nome |
-| Busca Binária (fabricante) | O(log n) | `busca.c` | Encontrar primeiro produto de um fabricante e listar todos do mesmo |
-| Busca Binária (faixa de preço) | O(log n) | `busca.c` | Encontrar início de uma faixa de preço ao consumidor |
+1. O vetor é ordenado por fabricante usando **Quick Sort**.
+2. A busca binária encontra o primeiro produto do fabricante.
+3. A partir dele, os produtos seguintes do mesmo fabricante são listados.
 
-Todas as buscas binárias exigem que o vetor esteja ordenado pelo critério buscado, por isso uma cópia é ordenada antes de cada busca — preservando a ordem original de cadastro.
+### Busca por faixa de preço
 
----
+1. O vetor é ordenado por preço ao consumidor utilizando **Insertion Sort**.
+2. A busca binária encontra o início da faixa.
+3. Os produtos dentro do intervalo são listados sequencialmente.
 
-## Validação de Entrada
-
-O sistema implementa validação robusta em todas as entradas do usuário:
-
-- **Números inteiros:** lidos como string e convertidos com `strtol`, verificando overflow, caracteres inválidos e limites min/max.
-- **Números decimais:** lidos como string e convertidos com `strtof`, com verificações similares.
-- **Textos (nome e fabricante):** exigem pelo menos uma letra ASCII (A–Z ou a–z), rejeitando entradas puramente numéricas, vazias ou só com espaços. A verificação de letras usa comparação explícita de faixa ASCII em vez de `isalpha()`, garantindo comportamento consistente em qualquer locale do sistema.
-
-Essa abordagem elimina problemas comuns do `scanf` como leitura parcial, buffer sujo e aceitação silenciosa de entradas inválidas.
+Para preservar a ordem original de cadastro, todas as buscas são realizadas **sobre cópias do vetor original**.
 
 ---
 
-## Como Compilar e Executar
+# 4. Relatórios Estatísticos
 
-### Compilação (GCC)
+O sistema gera um relatório contendo:
+
+### Preço médio por categoria
+
+Calcula a média aritmética do preço ao consumidor para cada uma das **7 categorias de produtos**.
+
+### Produto mais caro e mais barato
+
+O vetor é percorrido uma única vez para identificar:
+
+- o produto com maior preço
+- o produto com menor preço
+
+### Categoria com maior número de produtos
+
+Conta quantos produtos existem em cada categoria e identifica aquela(s) com maior quantidade, tratando possíveis empates.
+
+---
+
+# 5. Ranking de Margens e Alertas
+
+Essa funcionalidade fornece uma análise das margens de lucro cadastradas.
+
+### Top 5 maiores margens
+
+Ordena os produtos pelo percentual de lucro em ordem decrescente e exibe os **5 maiores valores**, mostrando:
+
+- nome do produto
+- percentual de lucro
+- preço base
+- preço ao consumidor
+
+### Alerta de margem baixa
+
+O usuário informa um limite mínimo de margem, e o sistema exibe todos os produtos com percentual inferior ao valor informado, marcados com `[ALERTA]`.
+
+### Alerta de margem acima do teto
+
+O usuário informa um teto máximo de margem, e o sistema lista todos os produtos que ultrapassam esse valor, indicando quantos pontos percentuais estão acima do limite.
+
+Essa funcionalidade auxilia na **análise comercial dos produtos**, permitindo identificar rapidamente margens inadequadas.
+
+---
+
+# 6. Encerramento
+
+Finaliza a execução do programa.
+
+---
+
+# Como Compilar e Executar
+
+## Compilação
 
 ```bash
 gcc main.c funcao.c ordenar.c ordenacaoComplexa.c busca.c -o prova.exe
 ```
 
-### Execução
+## Execução
 
 ```bash
 ./prova.exe
@@ -172,10 +214,10 @@ gcc main.c funcao.c ordenar.c ordenacaoComplexa.c busca.c -o prova.exe
 
 ---
 
-## Observações Técnicas
+# Observações Técnicas
 
-- O programa suporta até **200 produtos** (definido por `MAX_PRODUTOS`).
-- Campos de texto têm limite de **40 caracteres** (definido por `TAM_TEXTO`).
+- O sistema suporta até **200 produtos** (`MAX_PRODUTOS`).
+- Campos de texto possuem limite de **40 caracteres** (`TAM_TEXTO`).
 - A tela é limpa entre interações usando `system("cls")` no Windows ou `system("clear")` no Linux/Mac.
-- Todas as comparações de texto são **case-insensitive** (ignora maiúsculas/minúsculas).
-- O vetor original de produtos nunca é alterado pelas operações de listagem ou busca — sempre se trabalha com cópias.
+- Todas as comparações de texto são **case-insensitive**, ignorando diferenças entre maiúsculas e minúsculas.
+- O vetor original de produtos **não é alterado** pelas operações de listagem ou busca; essas operações são realizadas sobre **cópias do vetor**.
